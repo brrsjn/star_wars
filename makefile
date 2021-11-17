@@ -1,3 +1,5 @@
+build:
+	go mod tidy
 server:
 	go run broker/broker.go
 lector:
