@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+option go_package = "/pb";
+
+service BrokerFulcrumService {
+    rpc AddCityToFulcrum (AddCityToFulcrumRequest) returns (AddCityToFulcrumReply) {}
+    rpc DeleteCityToFulcrum (DeleteCityToFulcrumRequest) returns (DeleteCityToFulcrumReply);
+    rpc UpdateNameToFulcrum (UpdateNameToFulcrumRequest) returns (UpdateNameToFulcrumReply);
+    rpc UpdateNumberToFulcrum (UpdateNumberToFulcrumRequest) returns (UpdateNumberToFulcrumReply);
+}
+
+// The request message  the user's name.
+message AddCityToFulcrumRequest {
+    string nombre_planeta = 1;
+    string nombre_ciudad = 2;
+    int32 cantidad_soldados_rebeldes = 3;
+}
+
+message AddCityToFulcrumReply {
+    bool state = 1;
+}
+
+// The request message  the user's name.
+message DeleteCityToFulcrumRequest {
+    string nombre_planeta = 1;
+    string nombre_ciudad = 2;
+    int32 cantidad_soldados_rebeldes = 3;
+}
+
+message DeleteCityToFulcrumReply {
+    bool state = 1;
+}
+
+// The request message  the user's name.
+message UpdateNameToFulcrumRequest {
+    string nombre_planeta = 1;
+    string nombre_ciudad = 2;
+    int32 cantidad_soldados_rebeldes = 3;
+}
+
+message UpdateNameToFulcrumReply {
+    bool state = 1;
+}
+
+// The request message  the user's name.
+message UpdateNumberToFulcrumRequest {
+    string nombre_planeta = 1;
+    string nombre_ciudad = 2;
+    int32 cantidad_soldados_rebeldes = 3;
+}
+
+message UpdateNumberToFulcrumReply {
+    bool state = 1;
+}
