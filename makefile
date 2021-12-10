@@ -6,6 +6,8 @@ lector:
 	go run lectores/leia_organa.go
 informante_1:
 	go run informantes/ahsoka_tano/ahsoka_tano.go
+ahsoka:
+	go run informantes/ahsoka_tano/ahsoka_tano.go
 informante_2:
 	go run informantes/almirante_thrawn/almirante_thrawn.go
 server_1:
