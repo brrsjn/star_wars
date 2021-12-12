@@ -8,11 +8,11 @@ import (
 	"log"
 	"time"
 
+	protos "star_wars/pb"
 	"strconv"
 	"strings"
 
 	"os"
-	"star_wars/protos"
 
 	"google.golang.org/grpc"
 )
