@@ -2,11 +2,24 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
+	"time"
+
+	"strconv"
 	"strings"
+
+	"os"
+	"star_wars/protos"
+
+	"google.golang.org/grpc"
+)
+
+const (
+	brokeraddress = "localhost:50051"
+	defaultBot    = true
 )
 
 func main() {
@@ -18,16 +31,30 @@ func main() {
 		_, err := fmt.Print("> ")
 		buf.Scan()
 		comm := strings.Split(buf.Text(), " ")
+		valid, CommType, largo := IsValidInput(comm[0])
 
 		//Communication Failled
-		if (len(comm) < 3) || !IsValidInput(comm[0]) || (len(comm) > 4) {
-			fmt.Println("\n-Mos Eisley: Que?, aqui no tenemos de esos. *Llamada desconectada* ")
-			fmt.Println("-Ahsoka: ok, intentemoslo otra vez...")
+		if !valid || (len(comm) != largo) {
+			fmt.Println("\n-Mos Eisley: Que?, bo. *Llamada desconectada* ")
+			fmt.Println("-Ahsoka: Creo que me equivoque de instruccion inicial, intentemoslo otra vez...")
 			continue
 		}
+		if CommType == 1 {
+			_, err := strconv.Atoi(comm[len(comm)-1])
+			if err != nil {
+				fmt.Println("-Ahsoka: formato erroneo, intentemoslo otra vez...")
+				continue
+			}
+		}
+		if CommType == 0 {
+			fmt.Println("-Ahsoka: Fulcrum Cambio y fuera")
+			break
+		}
+
+		fmt.Println("-Mos Eisley: Comunicando...")
 
 		//conecta al broker y envia el comando
-		ConectToBroker()
+		ConectToBroker(comm[0])
 
 		//resive el servidor y reenvia el comando
 		ConectToServer()
@@ -47,17 +74,50 @@ func main() {
 
 }
 
-func IsValidInput(input string) bool {
+func IsValidInput(input string) (bool, int, int) {
 	switch input {
 	case
-		"AddCity", "UpdateName", "UpdateNumber", "DeleteCity":
-		return true
+		"AddCity", "Addcity", "addCity", "addcity":
+		return true, 1, 4
+
+	case
+		"UpdateName", "updateName", "updatename", "Updatename":
+		return true, 2, 4
+
+	case
+		"UpdateNumber", "Updatenumber", "updateNumber", "updatenumber":
+		return true, 1, 4
+
+	case
+		"DeleteCity", "Deletecity", "deleteCity", "deletecity":
+		return true, 2, 3
+	case
+		"Exit", "exit", "EXIT":
+		return true, 0, 1
 	}
-	return false
+
+	return false, 0, 0
 }
 
-func ConectToBroker() {
-	fmt.Println("-Ahsoka: Mos Eisley. Aqui Fulcrum solicitando un canal seguro")
+func ConectToBroker(message string) string {
+	conn, err := grpc.Dial(brokeraddress, grpc.WithInsecure(), grpc.WithBlock())
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	} else {
+		fmt.Println("-Ahsoka: Mos Eisley. Aqui Fulcrum solicitando un canal seguro")
+	}
+	defer conn.Close()
+	broker := protos.NewInformerToBrokerClient(conn)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	addres, err := broker.ConnectToServer(ctx, &protos.Instruct{Message: message})
+	if err != nil {
+		fmt.Println(err)
+		return "error"
+	} else {
+		return addres.Addres
+	}
+
 }
 
 func ConectToServer() {

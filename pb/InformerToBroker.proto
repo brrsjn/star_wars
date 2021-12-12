@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+option go_package = "/protos";
+
+
+message CityNumber {
+    string Planet = 1;
+    string City = 2;
+    int32 Survivors= 3;
+}
+
+message CityName {
+    string Planet = 1;
+    string City = 2;
+    string NewName= 3;
+}
+
+message CityDelete {
+    string Planet = 1;
+    string City = 2;
+    int32 Survivors= 3;
+}
+
+message instruct {
+    string message = 1;
+}
+
+message Servidor {
+    string addres =1;
+} 
+
+
+service InformerToBroker {
+    rpc AddCityToBroker(CityNumber) returns (Servidor){};
+    rpc UpdateNameToBroker(CityName) returns (Servidor){};
+    rpc UpdateNumber(CityNumber) returns (Servidor){};
+    rpc DeleteCity(CityDelete) returns (Servidor){};
+    rpc ConnectToServer(instruct) returns (Servidor){}; 
+    
+}
