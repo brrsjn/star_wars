@@ -4,7 +4,7 @@ gen:
 build:
 	go mod tidy
 server:
-	go run broker/broker.go
+	go run server/broker.go
 lector:
 	go run lectores/leia_organa.go
 informante_1:

@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	brokeraddress = "localhost:50051"
+	brokeraddress = "localhost:50050"
 	defaultBot    = true
 )
 
@@ -54,7 +54,7 @@ func main() {
 		fmt.Println("-Mos Eisley: Comunicando...")
 
 		//conecta al broker y envia el comando
-		ConectToBroker(comm[0])
+		fmt.Println(ConectToBroker(comm[0]))
 
 		//resive el servidor y reenvia el comando
 		ConectToServer()
@@ -110,14 +110,17 @@ func ConectToBroker(message string) string {
 	broker := protos.NewInformerToBrokerClient(conn)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	addres, err := broker.ConnectToServer(ctx, &protos.Instruct{Message: message})
+
+	addres, err := broker.ConnectToServer(ctx, &protos.Instruct{
+		Message: message,
+		Lectura: false})
+
 	if err != nil {
 		fmt.Println(err)
 		return "error"
 	} else {
 		return addres.Addres
 	}
-
 }
 
 func ConectToServer() {

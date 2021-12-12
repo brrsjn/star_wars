@@ -23,10 +23,12 @@ message CityDelete {
 
 message instruct {
     string message = 1;
+    bool lectura =2;
 }
 
 message Servidor {
     string addres =1;
+   
 } 
 
 
