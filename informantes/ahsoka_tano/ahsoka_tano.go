@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"star_wars/pb"
 	"time"
 
-	protos "star_wars/pb"
 	"strconv"
 	"strings"
 
@@ -51,13 +51,18 @@ func main() {
 			break
 		}
 
-		fmt.Println("-Mos Eisley: Comunicando...")
-
 		//conecta al broker y envia el comando
-		fmt.Println(ConectToBroker(comm[0]))
+		adSv, err := TalkToBroker(comm[0])
+
+		if adSv.Addres == "empty" {
+			fmt.Println("-Ahsoka: No se pudo modificar los registros galacticos")
+			continue
+		}
 
 		//resive el servidor y reenvia el comando
-		ConectToServer()
+		TalkToServer(adSv.Addres, comm)
+
+		//resive el servidor y reenvia el comando
 
 		//resive respuesta de todo ok y suelta al server.
 
@@ -99,7 +104,7 @@ func IsValidInput(input string) (bool, int, int) {
 	return false, 0, 0
 }
 
-func ConectToBroker(message string) string {
+func TalkToBroker(message string) (*pb.Servidor, error) {
 	conn, err := grpc.Dial(brokeraddress, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
@@ -107,24 +112,93 @@ func ConectToBroker(message string) string {
 		fmt.Println("-Ahsoka: Mos Eisley. Aqui Fulcrum solicitando un canal seguro")
 	}
 	defer conn.Close()
-	broker := protos.NewInformerToBrokerClient(conn)
+	broker := pb.NewBrokerClient(conn)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	addres, err := broker.ConnectToServer(ctx, &protos.Instruct{
+	addres, err := broker.ConnectToServer(ctx, &pb.Instruct{
 		Message: message,
 		Lectura: false})
 
-	if err != nil {
-		fmt.Println(err)
-		return "error"
-	} else {
-		return addres.Addres
-	}
+	return addres, err
 }
 
-func ConectToServer() {
-	fmt.Println("-Ahsoka: Fulcrum me copia?")
+func TalkToServer(address string, input []string) *pb.City {
+
+	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	} else {
+		fmt.Println("-Ahsoka: Fulcrum me copia?, envio nuevos datos galacticos...")
+	}
+	defer conn.Close()
+	serverObj := pb.NewFulcrumClient(conn)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	// LE ENVIA LA INSTRUCCION AL SERVER
+	switch input[0] {
+	case
+		"AddCity", "Addcity", "addCity", "addcity":
+		nume, _ := strconv.Atoi(input[3])
+		response, err := serverObj.AddCity(ctx, &pb.CityNewNumber{
+			Planet:    input[1],
+			City:      input[2],
+			Survivors: int32(nume),
+		})
+		if err != nil {
+			return &pb.City{
+				Name: " ",
+			}
+		}
+		return response
+
+	case
+		"UpdateName", "updateName", "updatename", "Updatename":
+		response, err := serverObj.UpdateName(ctx, &pb.CityNewName{
+			Planet:  input[1],
+			City:    input[2],
+			NewName: input[3],
+		})
+		if err != nil {
+			return &pb.City{
+				Name: " ",
+			}
+		}
+		return response
+
+	case
+		"UpdateNumber", "Updatenumber", "updateNumber", "updatenumber":
+		nume, _ := strconv.Atoi(input[3])
+		response, err := serverObj.UpdateNumber(ctx, &pb.CityNewNumber{
+			Planet:    input[1],
+			City:      input[2],
+			Survivors: int32(nume),
+		})
+		if err != nil {
+			return &pb.City{
+				Name: " ",
+			}
+		}
+		return response
+
+	case
+		"DeleteCity", "Deletecity", "deleteCity", "deletecity":
+		response, err := serverObj.DeleteCity(ctx, &pb.CityDelete{
+			Planet: input[1],
+			City:   input[2],
+		})
+		if err != nil {
+			return &pb.City{
+				Name: " ",
+			}
+		}
+		return response
+	}
+
+	return &pb.City{
+		Name: " ",
+	}
 }
 
 func Self_AddCity(texto string, full bool) {

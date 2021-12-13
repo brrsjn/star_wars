@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+option go_package = "/pb"; 
+
+message CityNewNumber {
+    string Planet = 1;
+    string City = 2;
+    int32 Survivors= 3;
+}
+
+message CityNewName {
+    string Planet = 1;
+    string City = 2;
+    string NewName= 3;
+}
+
+message CityDelete {
+    string Planet = 1;
+    string City = 2;
+    int32 Survivors= 3;
+}
+
+message City {
+    string Name = 1;
+    string Planet = 2;
+    int32 Survivors= 3;
+}
+
+message Read{
+    string instruction= 1;
+}
+
+service Fulcrum{
+    rpc AddCity(CityNewNumber) returns (City){};
+    rpc UpdateName(CityNewName) returns (City){};
+    rpc UpdateNumber(CityNewNumber) returns (City){};
+    rpc DeleteCity(CityDelete) returns (City){};  
+    
+    rpc ReadAll(Read) returns(stream City){};
+}

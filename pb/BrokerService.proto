@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option go_package = "/pb";
+
+
+message instruct {
+    string message = 1;
+    bool lectura =2;
+}
+
+message Servidor {
+    string addres =1;
+} 
+
+
+service Broker{
+    
+    rpc ConnectToServer(instruct) returns (Servidor){};     
+}
