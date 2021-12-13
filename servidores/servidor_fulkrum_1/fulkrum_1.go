@@ -24,17 +24,17 @@ func (s *BrokerFulcrumServer) AddCityToFulcrum(ctx context.Context, in *pb.AddCi
 }
 
 func (s *BrokerFulcrumServer) DeleteCityToFulcrum(ctx context.Context, in *pb.DeleteCityToFulcrumRequest) (*pb.DeleteCityToFulcrumReply, error) {
-	//Codigo para eliminar una ciudad
+	//Codigo para eliminar una ciudad del archivo
 	return &pb.DeleteCityToFulcrumReply{State: true}, nil
 }
 
 func (s *BrokerFulcrumServer) UpdateNameToFulcrum(ctx context.Context, in *pb.UpdateNameToFulcrumRequest) (*pb.UpdateNameToFulcrumReply, error) {
-	//Codigo para eliminar una ciudad
+	//Codigo para actualizar una ciudad
 	return &pb.UpdateNameToFulcrumReply{State: true}, nil
 }
 
 func (s *BrokerFulcrumServer) UpdateNumberToFulcrum(ctx context.Context, in *pb.UpdateNumberToFulcrumRequest) (*pb.UpdateNumberToFulcrumReply, error) {
-	//Codigo para eliminar una ciudad
+	//Codigo cambiar el numero de la ciudad
 	return &pb.UpdateNumberToFulcrumReply{State: true}, nil
 }
 
