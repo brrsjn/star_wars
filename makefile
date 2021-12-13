@@ -1,10 +1,17 @@
+#export PATH="$PATH:$(go env GOPATH)/bin" 
+gen:
+	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative pb/*.proto
 build:
 	go mod tidy
 server:
-	go run broker/broker.go
+	go run server/broker.go
+broker:
+	go run server/broker.go
 lector:
 	go run lectores/leia_organa.go
 informante_1:
+	go run informantes/ahsoka_tano/ahsoka_tano.go
+ahsoka:
 	go run informantes/ahsoka_tano/ahsoka_tano.go
 informante_2:
 	go run informantes/almirante_thrawn/almirante_thrawn.go
