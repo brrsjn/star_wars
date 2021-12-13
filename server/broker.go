@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"math/rand"
 	"net"
-	pb "star_wars/pb"
+	broker "star_wars/pb"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -19,9 +20,9 @@ const (
 	address3 = "localhost:50053"
 )
 
-type Broker struct {
-	pb.UnimplementedInformerToBrokerServer
-	servers    [3]*pb.Servidor
+type BrokerObj struct {
+	broker.UnimplementedBrokerServer
+	servers    [3]*broker.Servidor
 	conectedSV int32
 }
 
@@ -43,7 +44,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-	pb.RegisterInformerToBrokerServer(s, &Broker{
+	broker.RegisterBrokerServer(s, &BrokerObj{
 		conectedSV: 0,
 	})
 	reflection.Register(s)
@@ -63,12 +64,15 @@ func ConnectToFulcrum(address string) {
 	defer conn.Close()
 }
 
-func (broker *Broker) ConnectToServer(ctx context.Context, req *pb.Instruct) (*pb.Servidor, error) {
-	if broker.conectedSV > 0 {
-		req := broker.servers[rand.Intn(2)]
-		return req, nil
+func (self *BrokerObj) ConnectToServer(ctx context.Context, req *broker.Instruct) (*broker.Servidor, error) {
+	if self.conectedSV == 0 {
+		fmt.Println("-Mos Eisley: No hay servidores disponibles...")
+		return &broker.Servidor{Addres: "empty"}, nil
+
 	} else {
-		return &pb.Servidor{Addres: "nada"}, nil
+		fmt.Println("-Mos Eisley: Comunicando...")
+		req := self.servers[rand.Intn(2)]
+		return req, nil
 	}
 
 }
