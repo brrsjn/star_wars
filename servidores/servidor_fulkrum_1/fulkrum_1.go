@@ -15,7 +15,8 @@ import (
 )
 
 const (
-	port = ":50061"
+	port    = ":50061"
+	logFile = "servidores/servidor_fulkrum_3/planetas/log"
 )
 
 type FulcrumServer struct {
@@ -128,6 +129,8 @@ func (s *FulcrumServer) AddCity(ctx context.Context, in *pb.City) (*pb.City, err
 		s.savedPlanetas = append(s.savedPlanetas, planeta)
 		escribeArchivo(path, toWrite)
 	}
+	lineLog := fmt.Sprintf("AddCity %s %s %d", in.Planet, in.Name, in.Survivors)
+	escribeArchivo(logFile, lineLog)
 	return in, nil
 
 }
@@ -161,6 +164,8 @@ func (s *FulcrumServer) DeleteCity(ctx context.Context, in *pb.CityDelete) (*pb.
 	if err != nil {
 		log.Fatalln(err)
 	}
+	lineLog := fmt.Sprintf("DeleteCity %s %s", in.Planet, in.City)
+	escribeArchivo(logFile, lineLog)
 	return &pb.City{Name: cityName}, nil
 }
 
@@ -192,7 +197,8 @@ func (s *FulcrumServer) UpdateName(ctx context.Context, in *pb.CityNewName) (*pb
 	if err != nil {
 		log.Fatalln(err)
 	}
-
+	lineLog := fmt.Sprintf("UpdateName %s %s %s", in.Planet, in.City, in.NewName)
+	escribeArchivo(logFile, lineLog)
 	return &pb.City{Name: in.NewName, Planet: in.Planet, Survivors: 0}, nil
 }
 
@@ -225,11 +231,13 @@ func (s *FulcrumServer) UpdateNumber(ctx context.Context, in *pb.CityNewNumber) 
 	if err != nil {
 		log.Fatalln(err)
 	}
-
+	lineLog := fmt.Sprintf("UpdateNumber %s %s %d", in.Planet, in.City, in.Survivors)
+	escribeArchivo(logFile, lineLog)
 	return &pb.City{Name: in.City, Planet: in.Planet, Survivors: 0}, nil
 }
 
 func main() {
+	crearArchivo(logFile)
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
