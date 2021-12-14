@@ -21,6 +21,8 @@ ahsoka:
 	go run informantes/ahsoka_tano/ahsoka_tano.go
 informante_2:
 	go run informantes/almirante_thrawn/almirante_thrawn.go
+thrawn:
+	go run informantes/almirante_thrawn/almirante_thrawn.go
 
 server_1:
 	go run servidores/servidor_fulkrum_1/fulkrum_1.go

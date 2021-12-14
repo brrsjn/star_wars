@@ -33,9 +33,13 @@ type PlanetObj struct {
 type Memoria struct {
 	registro string
 	reloj    string
+	servidor string
 }
 
-func main() {
+/* func main() {
+	AddlineOnFiles("testing tex222to", false)
+} //*/
+func notmain() {
 	fmt.Println("\n-Ahsoka: Hola, aqui Fulcrum a su servicio...")
 	//var planetas map[string]PlanetObj
 	planetas := map[string]PlanetObj{}
@@ -84,7 +88,7 @@ func main() {
 		cityMod := TalkToServer(adSv.Addres, comm)
 
 		memo := new(Memoria)
-		memo.registro = buf.Text() + " " + cityMod.Reloj
+		memo.registro = buf.Text() + "; Servidor: " + adSv.Addres + "; Reloj: " + cityMod.Reloj
 
 		if !cityMod.Error {
 			//Modifica su registro personal.
@@ -226,15 +230,18 @@ func AddlineOnFiles(texto string, full bool) {
 	if !full {
 		texto = texto + "\n"
 	}
-	textByte := []byte(texto)
-	err := ioutil.WriteFile("./star_wars/informantes/ahsoka_tano/registro.txt", textByte, 0644)
+
+	before := SelfReadAll()
+	textobyte := before + texto
+	writeByte := []byte(textobyte)
+	err := ioutil.WriteFile("informantes/ahsoka_tano/registroAhsoka.txt", writeByte, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
 func SelfReadAll() string {
-	allTextBytes, err := ioutil.ReadFile("./star_wars/informantes/ahsoka_tano/rregistro.txt")
+	allTextBytes, err := ioutil.ReadFile("informantes/ahsoka_tano/registroAhsoka.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
