@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
+	"os"
 	"star_wars/pb"
 
 	"google.golang.org/grpc"
@@ -18,8 +20,53 @@ type BrokerFulcrumServer struct {
 	pb.UnimplementedBrokerFulcrumServiceServer
 }
 
+func crearArchivo(path string) {
+	//Verifica que el archivo existe
+	var _, err = os.Stat(path)
+	//Crea el archivo si no existe
+	if os.IsNotExist(err) {
+		log.Printf("Hola")
+		var file, err = os.Create(path)
+		if existeError(err) {
+			return
+		}
+		defer file.Close()
+	}
+	fmt.Println("File Created Successfully", path)
+}
+
+func escribeArchivo(path string, movimiento int) {
+	// Abre archivo usando permisos READ & WRITE
+	var file, err = os.OpenFile(path, os.O_RDWR|os.O_APPEND, 0660)
+	if existeError(err) {
+		return
+	}
+	defer file.Close()
+	// Escribe algo de texto linea por linea
+	text := fmt.Sprintf("%d\n", movimiento)
+	_, err = file.WriteString(text)
+	if existeError(err) {
+		return
+	}
+	// Salva los cambios
+	err = file.Sync()
+	if existeError(err) {
+		return
+	}
+	fmt.Println("Archivo actualizado existosamente.")
+}
+
+func existeError(err error) bool {
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return (err != nil)
+}
+
 func (s *BrokerFulcrumServer) AddCityToFulcrum(ctx context.Context, in *pb.AddCityToFulcrumRequest) (*pb.AddCityToFulcrumReply, error) {
 	//Codigo para guardar la ciudad en archivo
+	fmt.Println(in.NombreCiudad)
+
 	return &pb.AddCityToFulcrumReply{State: true}, nil
 }
 
