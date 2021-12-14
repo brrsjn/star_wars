@@ -15,9 +15,9 @@ import (
 const (
 	port = ":50050"
 
-	address1 = "localhost:50051"
-	address2 = "localhost:50052"
-	address3 = "localhost:50053"
+	address1 = "localhost:50061"
+	address2 = "localhost:50062"
+	address3 = "localhost:50063"
 )
 
 type BrokerObj struct {
@@ -27,18 +27,8 @@ type BrokerObj struct {
 }
 
 func main() {
-	// Conectar con los servidores de Fulcrum
 
-	/*lis, err := net.Listen("tcp", port)
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-	*/
-	// hay que hacer un proto con los servidores y suscribirlo aqui
-	//nameNode := proto.NewServerNodeServiceClient(conn)
-	//algo := protos.RegisterInformerToBrokerServer(s, )
-
-	//Iniciar como servidor
+	// Set up a connection to the server.
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
