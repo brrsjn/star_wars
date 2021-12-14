@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	brokeraddress = "localhost:50050"
+	brokeraddress = "localhost:50060"
 	defaultBot    = true
 )
 
@@ -39,7 +39,7 @@ type Memoria struct {
 /* func main() {
 	AddlineOnFiles("testing tex222to", false)
 } //*/
-func notmain() {
+func main() {
 	fmt.Println("\n-Ahsoka: Hola, aqui Fulcrum a su servicio...")
 	//var planetas map[string]PlanetObj
 	planetas := map[string]PlanetObj{}

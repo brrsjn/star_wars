@@ -9,24 +9,33 @@ import (
 	"os"
 	"star_wars/pb"
 	"strings"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
 const (
-	port    = ":50061"
-	logFile = "servidores/servidor_fulkrum_3/planetas/log"
+	port          = ":50061"
+	logFile       = "servidores/servidor_fulkrum_1/planetas/log.txt"
+	brokeraddress = "localhost:50060"
 )
 
 type FulcrumServer struct {
 	pb.UnimplementedFulcrumServer
 	savedPlanetas []*Planeta
+	relojInterno  Reloj
 }
 
 type Planeta struct {
 	nombre   string
 	ciudades []string
+}
+
+type Reloj struct {
+	fulkrum_1 int32
+	fulkrum_2 int32
+	fulkrum_3 int32
 }
 
 func crearArchivo(path string) {
@@ -91,6 +100,21 @@ func existeError(err error) bool {
 	return (err != nil)
 }
 
+func TalkToBroker() (*pb.Servidor, error) {
+	conn, err := grpc.Dial(brokeraddress, grpc.WithInsecure(), grpc.WithBlock())
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer conn.Close()
+	broker := pb.NewBrokerClient(conn)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	sv, err := broker.ServerIsOpen(ctx, &pb.Servidor{
+		Addres: port})
+
+	return sv, nil
+}
 func (s *FulcrumServer) AddCity(ctx context.Context, in *pb.City) (*pb.City, error) {
 	//Codigo para guardar la ciudad en archivo
 	log.Printf("Se añadirá una nueva ciudad")
@@ -129,6 +153,7 @@ func (s *FulcrumServer) AddCity(ctx context.Context, in *pb.City) (*pb.City, err
 		s.savedPlanetas = append(s.savedPlanetas, planeta)
 		escribeArchivo(path, toWrite)
 	}
+	s.relojInterno.fulkrum_1 = s.relojInterno.fulkrum_1 + 1
 	lineLog := fmt.Sprintf("AddCity %s %s %d", in.Planet, in.Name, in.Survivors)
 	escribeArchivo(logFile, lineLog)
 	return in, nil
@@ -166,6 +191,8 @@ func (s *FulcrumServer) DeleteCity(ctx context.Context, in *pb.CityDelete) (*pb.
 	}
 	lineLog := fmt.Sprintf("DeleteCity %s %s", in.Planet, in.City)
 	escribeArchivo(logFile, lineLog)
+	s.relojInterno.fulkrum_1 = s.relojInterno.fulkrum_1 + 1
+
 	return &pb.City{Name: cityName}, nil
 }
 
@@ -199,6 +226,8 @@ func (s *FulcrumServer) UpdateName(ctx context.Context, in *pb.CityNewName) (*pb
 	}
 	lineLog := fmt.Sprintf("UpdateName %s %s %s", in.Planet, in.City, in.NewName)
 	escribeArchivo(logFile, lineLog)
+	s.relojInterno.fulkrum_1 = s.relojInterno.fulkrum_1 + 1
+
 	return &pb.City{Name: in.NewName, Planet: in.Planet, Survivors: 0}, nil
 }
 
@@ -233,17 +262,29 @@ func (s *FulcrumServer) UpdateNumber(ctx context.Context, in *pb.CityNewNumber) 
 	}
 	lineLog := fmt.Sprintf("UpdateNumber %s %s %d", in.Planet, in.City, in.Survivors)
 	escribeArchivo(logFile, lineLog)
+	s.relojInterno.fulkrum_1 = s.relojInterno.fulkrum_1 + 1
+
 	return &pb.City{Name: in.City, Planet: in.Planet, Survivors: 0}, nil
 }
 
 func main() {
+	sv, _ := TalkToBroker()
+	if sv.Error {
+		log.Println("Servidores llenos, no se pudo conectar a broker")
+	}
 	crearArchivo(logFile)
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-	pb.RegisterFulcrumServer(s, &FulcrumServer{})
+	pb.RegisterFulcrumServer(s, &FulcrumServer{
+		relojInterno: Reloj{
+			fulkrum_1: 0,
+			fulkrum_2: 0,
+			fulkrum_3: 0,
+		},
+	})
 	reflection.Register(s)
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {

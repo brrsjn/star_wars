@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	brokeraddress = "localhost:50050"
+	brokeraddress = "localhost:50060"
 	defaultBot    = true
 )
 

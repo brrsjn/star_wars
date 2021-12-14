@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	port = ":50050"
+	port = ":50060"
 
 	address1 = "localhost:50061"
 	address2 = "localhost:50062"
@@ -69,13 +69,16 @@ func (self *BrokerObj) RandomServer(ctx context.Context, req *broker.Instruct) (
 
 func (self *BrokerObj) ServerIsOpen(ctx context.Context, req *broker.Servidor) (*broker.Servidor, error) {
 	if self.conectedSV < 3 {
-		req.Error = true
+		req.Error = false
 		self.conectedSV = self.conectedSV + 1
 		self.servers = append(self.servers, req)
+		string := "Adress conectado " + req.Addres
+		log.Println(string)
 		return req, nil
 
 	} else {
 		req.Error = true
+		log.Println("No se pudo conectar el addres: " + req.Addres)
 		return req, nil
 	}
 
