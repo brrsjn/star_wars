@@ -20,6 +20,12 @@ const (
 
 type FulcrumServer struct {
 	pb.UnimplementedFulcrumServer
+	savedPlanetas []*Planeta
+}
+
+type Planeta struct {
+	nombre   string
+	ciudades []string
 }
 
 func crearArchivo(path string) {
@@ -88,20 +94,74 @@ func (s *FulcrumServer) AddCity(ctx context.Context, in *pb.City) (*pb.City, err
 	//Codigo para guardar la ciudad en archivo
 	log.Printf("Se añadirá una nueva ciudad")
 	path := fmt.Sprintf("servidores/servidor_fulkrum_1/planetas/%s.txt", in.Planet)
+	if len(s.savedPlanetas) > 0 {
+		for i := 0; i < len(s.savedPlanetas); i++ {
+			if s.savedPlanetas[i].nombre == in.Planet {
+				fmt.Println("if planeta")
+				isNotCityInPlaneta := true
+				for j := 0; j < len(s.savedPlanetas[i].ciudades); j++ {
+					fmt.Println("for ciudad")
+					if s.savedPlanetas[i].ciudades[j] == in.Name {
+						fmt.Println("if ciudad")
+						isNotCityInPlaneta = false
+						//Solo continua con la funcion, sin informar al usuario
+						break
+					}
+				}
+				if isNotCityInPlaneta {
+					toWrite := fmt.Sprintf("%s %s %d\n", in.Planet, in.Name, in.Survivors)
+					planeta := new(Planeta)
+					planeta.nombre = in.Planet
+					planeta.ciudades = append(planeta.ciudades, in.Name)
+					s.savedPlanetas[i].ciudades = append(planeta.ciudades, in.Name)
+					escribeArchivo(path, toWrite)
+				}
+			}
+
+		}
+	} else {
+		crearArchivo(path)
+		toWrite := fmt.Sprintf("%s %s %d\n", in.Planet, in.Name, in.Survivors)
+		planeta := new(Planeta)
+		planeta.nombre = in.Planet
+		planeta.ciudades = append(planeta.ciudades, in.Name)
+		s.savedPlanetas = append(s.savedPlanetas, planeta)
+		escribeArchivo(path, toWrite)
+	}
+	return in, nil
+
+}
+
+func (s *FulcrumServer) DeleteCity(ctx context.Context, in *pb.CityDelete) (*pb.City, error) {
+	//Codigo para actualizar una ciudad
+	path := fmt.Sprintf("servidores/servidor_fulkrum_1/planetas/%s.txt", in.Planet)
 	input, err := ioutil.ReadFile(path)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	crearArchivo(path)
-	toWrite := fmt.Sprintf("%s %s %d\n", in.Planet, in.Name, in.Survivors)
-	escribeArchivo(path, toWrite)
-	return in, nil
-}
+	log.Println("Entró")
 
-func (s *FulcrumServer) DeleteCity(ctx context.Context, in *pb.CityDelete) (*pb.City, error) {
-	//Codigo para eliminar una ciudad del archivo
-	return &pb.City{Name: "", Planet: "", Survivors: 0}, nil
+	lines := strings.Split(string(input), "\n")
+	var cityName string
+	var newLines []string
+	for _, line := range lines {
+		valor := strings.Split(line, " ")
+		if len(valor) == 3 {
+			if valor[1] != in.City {
+				newLines = append(newLines, line)
+			} else {
+				cityName = valor[1]
+			}
+		}
+
+	}
+	output := strings.Join(newLines, "\n")
+	err = ioutil.WriteFile(path, []byte(output), 0644)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return &pb.City{Name: cityName}, nil
 }
 
 func (s *FulcrumServer) UpdateName(ctx context.Context, in *pb.CityNewName) (*pb.City, error) {

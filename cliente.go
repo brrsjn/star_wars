@@ -14,7 +14,7 @@ const (
 	defaultBot = true
 )
 
-func testAddCity() {
+func testAddCity(name string) {
 	// Set up a connection to the server.
 	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
@@ -24,7 +24,7 @@ func testAddCity() {
 	c := pb.NewFulcrumClient(conn)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	r, err := c.AddCity(ctx, &pb.City{Name: "JuanCity2", Planet: "Tatooine", Survivors: 3})
+	r, err := c.AddCity(ctx, &pb.City{Name: name, Planet: "Tatooine", Survivors: 3})
 	if err != nil {
 		log.Fatalf("could not greet: %v", err)
 
@@ -70,8 +70,29 @@ func testUpdateNumber() {
 	log.Printf("Ciudad %s Actualizada su numero de survivors", r.Name)
 }
 
+func testDeleteCity(name string) {
+	// Set up a connection to the server.
+	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer conn.Close()
+	c := pb.NewFulcrumClient(conn)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	r, err := c.DeleteCity(ctx, &pb.CityDelete{City: name, Planet: "Tatooine", Survivors: 5})
+	if err != nil {
+		log.Fatalf("could not greet: %v", err)
+
+	}
+	log.Printf("Ciudad %s Eliminada su numero de survivors", r.Name)
+}
+
 func main() {
-	testAddCity()
+	testAddCity("Juan")
+	testAddCity("Valpo")
 	//testUpdateName()
 	//testUpdateNumber()
+	testDeleteCity("Juan")
 }
