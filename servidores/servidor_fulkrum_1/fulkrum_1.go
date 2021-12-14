@@ -20,6 +20,12 @@ const (
 
 type FulcrumServer struct {
 	pb.UnimplementedFulcrumServer
+	savedPlanetas []*Planeta
+}
+
+type Planeta struct {
+	nombre   string
+	ciudades []*string
 }
 
 func crearArchivo(path string) {
@@ -88,11 +94,31 @@ func (s *FulcrumServer) AddCity(ctx context.Context, in *pb.City) (*pb.City, err
 	//Codigo para guardar la ciudad en archivo
 	log.Printf("Se añadirá una nueva ciudad")
 	path := fmt.Sprintf("servidores/servidor_fulkrum_1/planetas/%s.txt", in.Planet)
+	if len(s.savedPlanetas) > 0 {
+		for i := 0; i < len(s.savedPlanetas); i++ {
+			if s.savedPlanetas[i].nombre == in.Planet {
+				fmt.Println("if planeta")
 
-	crearArchivo(path)
-	toWrite := fmt.Sprintf("%s %s %d\n", in.Planet, in.Name, in.Survivors)
-	escribeArchivo(path, toWrite)
+				for j := 0; j < len(s.savedPlanetas[i].ciudades); j++ {
+					fmt.Println("for ciudad")
+					if s.savedPlanetas[i].ciudades[j] == &in.Name {
+						fmt.Println("if ciudad")
+					}
+				}
+			}
+
+		}
+	} else {
+		crearArchivo(path)
+		toWrite := fmt.Sprintf("%s %s %d\n", in.Planet, in.Name, in.Survivors)
+		planeta := new(Planeta)
+		planeta.nombre = in.Planet
+		planeta.ciudades = append(planeta.ciudades, &in.Name)
+		s.savedPlanetas = append(s.savedPlanetas, planeta)
+		escribeArchivo(path, toWrite)
+	}
 	return in, nil
+
 }
 
 func (s *FulcrumServer) DeleteCity(ctx context.Context, in *pb.CityDelete) (*pb.City, error) {

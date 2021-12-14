@@ -62,7 +62,7 @@ func testUpdateNumber() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	r, err := c.UpdateNumber(ctx, &pb.CityNewNumber{City: "SolCity", Planet: "Tatooine", Survivors: 5})
+	r, err := c.UpdateNumber(ctx, &pb.CityNewNumber{City: "JuanCity2", Planet: "Tatooine", Survivors: 5})
 	if err != nil {
 		log.Fatalf("could not greet: %v", err)
 
@@ -72,6 +72,6 @@ func testUpdateNumber() {
 
 func main() {
 	testAddCity()
-	testUpdateName()
+	//testUpdateName()
 	//testUpdateNumber()
 }
