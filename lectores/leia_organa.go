@@ -1,9 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"bufio"
 	"context"
+	"fmt"
+
 	//"io/ioutil"
 	"log"
 	"time"
@@ -32,7 +33,7 @@ func main() {
 		//valid, tempType, large := IsValidInput(temp[0]) //falta arreglar esto
 		valid := strings.ToLower(temp[0]) == "getnumbersrebelds"
 
-		if !valid || (len(temp) != 3){
+		if !valid || (len(temp) != 3) {
 			fmt.Println("Error, fin de la comunicacion", err)
 			continue
 		}
@@ -64,7 +65,7 @@ func ConnectToBroker(planet string, city string) (string, int32, int32) {
 	defer cancel()
 
 	addres, err := broker.ConnectLeia(ctx, &pb.InstructLeia{Nplanet: planet, Ncity: city})
-	
+
 	if err != nil {
 		fmt.Println(err)
 		return "error", 0, 0
@@ -76,4 +77,3 @@ func ConnectToBroker(planet string, city string) (string, int32, int32) {
 func ConectToServer() {
 	fmt.Println("Fulcrum me copia")
 }
-
