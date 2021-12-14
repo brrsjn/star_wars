@@ -88,10 +88,6 @@ func (s *FulcrumServer) AddCity(ctx context.Context, in *pb.City) (*pb.City, err
 	//Codigo para guardar la ciudad en archivo
 	log.Printf("Se añadirá una nueva ciudad")
 	path := fmt.Sprintf("servidores/servidor_fulkrum_1/planetas/%s.txt", in.Planet)
-	input, err := ioutil.ReadFile(path)
-	if err != nil {
-		log.Fatalln(err)
-	}
 
 	crearArchivo(path)
 	toWrite := fmt.Sprintf("%s %s %d\n", in.Planet, in.Name, in.Survivors)
