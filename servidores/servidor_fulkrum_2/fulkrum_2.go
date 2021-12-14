@@ -91,6 +91,7 @@ func (s *FulcrumServer) AddCity(ctx context.Context, in *pb.City) (*pb.City, err
 	input, err := ioutil.ReadFile(path)
 	if err != nil {
 		log.Fatalln(err)
+		fmt.Println(input)
 	}
 
 	crearArchivo(path)

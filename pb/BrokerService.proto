@@ -26,5 +26,6 @@ message NumbersRebelds{
 
 service Broker{
     rpc ConnectLeia(InstructLeia) returns (NumbersRebelds){};
-    rpc ConnectToServer(instruct) returns (Servidor){};     
+    rpc RandomServer(instruct) returns (Servidor){};
+    rpc ServerIsOpen(Servidor) returns (Servidor){};
 }

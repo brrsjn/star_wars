@@ -137,7 +137,7 @@ func TalkToBroker(message string) (*pb.Servidor, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	addres, err := broker.ConnectToServer(ctx, &pb.Instruct{
+	addres, err := broker.RandomServer(ctx, &pb.Instruct{
 		Message: message,
 		Lectura: false})
 
