@@ -31,7 +31,7 @@ message Read{
 }
 
 service Fulcrum{
-    rpc AddCity(CityNewNumber) returns (City){};
+    rpc AddCity(City) returns (City){};
     rpc UpdateName(CityNewName) returns (City){};
     rpc UpdateNumber(CityNewNumber) returns (City){};
     rpc DeleteCity(CityDelete) returns (City){};  

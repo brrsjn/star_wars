@@ -141,9 +141,9 @@ func TalkToServer(address string, input []string) *pb.City {
 	case
 		"AddCity", "Addcity", "addCity", "addcity":
 		nume, _ := strconv.Atoi(input[3])
-		response, err := serverObj.AddCity(ctx, &pb.CityNewNumber{
+		response, err := serverObj.AddCity(ctx, &pb.City{
 			Planet:    input[1],
-			City:      input[2],
+			Name:      input[2],
 			Survivors: int32(nume),
 		})
 		if err != nil {
