@@ -141,6 +141,7 @@ func (s *FulcrumServer) DeleteCity(ctx context.Context, in *pb.CityDelete) (*pb.
 	input, err := ioutil.ReadFile(path)
 	if err != nil {
 		log.Fatalln(err)
+		fmt.Println(input)
 	}
 
 	log.Println("Entró")

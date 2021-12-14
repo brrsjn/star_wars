@@ -22,7 +22,7 @@ const (
 
 type BrokerObj struct {
 	broker.UnimplementedBrokerServer
-	servers    [3]*broker.Servidor
+	servers    []*broker.Servidor
 	conectedSV int32
 }
 
@@ -54,14 +54,28 @@ func ConnectToFulcrum(address string) {
 	defer conn.Close()
 }
 
-func (self *BrokerObj) ConnectToServer(ctx context.Context, req *broker.Instruct) (*broker.Servidor, error) {
+func (self *BrokerObj) RandomServer(ctx context.Context, req *broker.Instruct) (*broker.Servidor, error) {
 	if self.conectedSV == 0 {
 		fmt.Println("-Mos Eisley: No hay servidores disponibles...")
 		return &broker.Servidor{Error: true}, nil
 
 	} else {
 		fmt.Println("-Mos Eisley: Comunicando...")
-		req := self.servers[rand.Intn(2)]
+		req := self.servers[rand.Intn(int(self.conectedSV)-1)]
+		return req, nil
+	}
+
+}
+
+func (self *BrokerObj) ServerIsOpen(ctx context.Context, req *broker.Servidor) (*broker.Servidor, error) {
+	if self.conectedSV < 3 {
+		req.Error = true
+		self.conectedSV = self.conectedSV + 1
+		self.servers = append(self.servers, req)
+		return req, nil
+
+	} else {
+		req.Error = true
 		return req, nil
 	}
 
