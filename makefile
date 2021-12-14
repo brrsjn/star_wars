@@ -6,6 +6,7 @@ build:
 
 clean:
 	rm pb/*.go
+	rm servidores/servidor_fulkrum_1/planetas/*.txt
 	
 server:
 	go run server/broker.go
