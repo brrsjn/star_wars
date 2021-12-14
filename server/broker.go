@@ -57,7 +57,7 @@ func ConnectToFulcrum(address string) {
 func (self *BrokerObj) ConnectToServer(ctx context.Context, req *broker.Instruct) (*broker.Servidor, error) {
 	if self.conectedSV == 0 {
 		fmt.Println("-Mos Eisley: No hay servidores disponibles...")
-		return &broker.Servidor{Addres: "empty"}, nil
+		return &broker.Servidor{Error: true}, nil
 
 	} else {
 		fmt.Println("-Mos Eisley: Comunicando...")
