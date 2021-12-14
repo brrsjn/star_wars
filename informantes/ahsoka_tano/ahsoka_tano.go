@@ -75,8 +75,7 @@ func main() {
 		*/
 		adSv, _ := TalkToBroker(comm[0])
 
-		//if adSv.Empty{  Modificar el proto de pb.Servidor
-		if adSv.Addres == "empty" {
+		if adSv.Error {
 			fmt.Println("-Mos Eisley: No hay servidores disponibles...")
 			continue
 		}
@@ -85,12 +84,12 @@ func main() {
 		cityMod := TalkToServer(adSv.Addres, comm)
 
 		memo := new(Memoria)
-		memo.registro = buf.Text() + " " //+ cityMod.Reloj
+		memo.registro = buf.Text() + " " + cityMod.Reloj
 
-		//if !cityMod.Error { modificar el proto de pb.City
-		if cityMod.Name != " " {
+		if !cityMod.Error {
 			//Modifica su registro personal.
 			registro = append(registro, *memo)
+			AddlineOnFiles(memo.registro, false)
 			planetas[cityMod.Planet].Cities[cityMod.Name] = cityMod
 		} else {
 			//en caso de falla no guarda su registro.
@@ -170,8 +169,7 @@ func TalkToServer(address string, input []string) *pb.City {
 		})
 		if err != nil {
 			return &pb.City{
-				Name: " ",
-				//error: true,
+				Error: true,
 			}
 		}
 		return response
@@ -185,8 +183,7 @@ func TalkToServer(address string, input []string) *pb.City {
 		})
 		if err != nil {
 			return &pb.City{
-				Name: " ",
-				//error: true,
+				Error: true,
 			}
 		}
 		return response
@@ -201,8 +198,7 @@ func TalkToServer(address string, input []string) *pb.City {
 		})
 		if err != nil {
 			return &pb.City{
-				Name: " ",
-				//error: true,
+				Error: true,
 			}
 		}
 		return response
@@ -215,16 +211,14 @@ func TalkToServer(address string, input []string) *pb.City {
 		})
 		if err != nil {
 			return &pb.City{
-				Name: " ",
-				//error: true,
+				Error: true,
 			}
 		}
 		return response
 	}
 
 	return &pb.City{
-		Name: " ",
-		//error: true,
+		Error: true,
 	}
 }
 
@@ -233,14 +227,14 @@ func AddlineOnFiles(texto string, full bool) {
 		texto = texto + "\n"
 	}
 	textByte := []byte(texto)
-	err := ioutil.WriteFile("registro.txt", textByte, 0644)
+	err := ioutil.WriteFile("./star_wars/informantes/ahsoka_tano/registro.txt", textByte, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
 func SelfReadAll() string {
-	allTextBytes, err := ioutil.ReadFile("registro.txt")
+	allTextBytes, err := ioutil.ReadFile("./star_wars/informantes/ahsoka_tano/rregistro.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
