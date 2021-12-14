@@ -10,6 +10,7 @@ message instruct {
 
 message Servidor {
     string addres =1;
+    bool Error=2;
 } 
 
 message InstructLeia{
