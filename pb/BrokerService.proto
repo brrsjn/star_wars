@@ -10,10 +10,21 @@ message instruct {
 
 message Servidor {
     string addres =1;
+    bool Error=2;
 } 
 
+message InstructLeia{
+    string nplanet = 1;
+    string ncity = 2;
+}
+
+message NumbersRebelds{
+    int32 nrebelds = 1;
+    string vreloj = 2;
+    int32 server = 3;
+}
 
 service Broker{
-    
+    rpc ConnectLeia(InstructLeia) returns (NumbersRebelds){};
     rpc ConnectToServer(instruct) returns (Servidor){};     
 }
