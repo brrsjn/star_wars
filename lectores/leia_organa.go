@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"bufio"
 	"context"
-	"io/ioutil"
+	//"io/ioutil"
 	"log"
 	"time"
 
-	protos "star_wars/pb"
-	"strconv"
+	"star_wars/pb"
 	"strings"
 
 	"os"
@@ -30,35 +29,28 @@ func main() {
 		_, err := fmt.Println("> ")
 		inputScanner.Scan()
 		temp := strings.Split(inputScanner.Text(), " ")
-		valid, tempType, large := IsValidInput(temp[0]) //falta arreglar esto
+		//valid, tempType, large := IsValidInput(temp[0]) //falta arreglar esto
+		valid := strings.ToLower(temp[0]) == "getnumbersrebelds"
 
-		if !valid || (len(temp) !=large){
-			fmt.Println("Error, fin de la comunicacion")
+		if !valid || (len(temp) != 3){
+			fmt.Println("Error, fin de la comunicacion", err)
 			continue
-		}
-
-		if tempType==1{
-			_, err := strconv.Atoi(temp[len(temp)-1])
-			if err !=nil{
-				fmt.Println("Error, intente nuevamente")
-				continue
-			}
-		}
-		if tempType==0{
-			fmt.Println("Conexion correcta")
 		}
 
 		fmt.Println("Conectando")
 
-		fmt.Println(ConectToBroker(temp[0]))
+		fmt.Println()
 
-		ConectToServer()
+		reloj_vec, rebelds_number, server := ConnectToBroker(temp[1], temp[2])
+		fmt.Println("Reloj: ", reloj_vec)
+		fmt.Println("Numero de rebeldes: ", rebelds_number)
+		fmt.Println("Servidor Fullcrum: ", server)
 	}
 
 }
 
 //Conexion con broker, lectura.
-func ConectToBroker(message string) string {
+func ConnectToBroker(planet string, city string) (string, int32, int32) {
 	conn, err := grpc.Dial(brokeraddress, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
@@ -67,17 +59,17 @@ func ConectToBroker(message string) string {
 	}
 
 	defer conn.Close()
-	broker := protos.NewInformerToBrokerClient(conn)
+	broker := pb.NewBrokerClient(conn)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	addres, err := broker.ConnectToServer(ctx, &protos.Instruct{Message: message, Lectura: true})
+	addres, err := broker.ConnectLeia(ctx, &pb.InstructLeia{Nplanet: planet, Ncity: city})
 	
 	if err != nil {
 		fmt.Println(err)
-		return "error"
+		return "error", 0, 0
 	} else {
-		return addres.Addres
+		return addres.Vreloj, addres.Nrebelds, addres.Server
 	}
 }
 
@@ -85,31 +77,3 @@ func ConectToServer() {
 	fmt.Println("Fulcrum me copia")
 }
 
-
-//arreglar!!
-/*
-func IsValidInput(input string) (bool, int, int){
-	switch input {
-		case
-			"AddCity", "Addcity", "addCity", "addcity":
-			return true, 1, 4
-	
-		case
-			"UpdateName", "updateName", "updatename", "Updatename":
-			return true, 2, 4
-	
-		case
-			"UpdateNumber", "Updatenumber", "updateNumber", "updatenumber":
-			return true, 1, 4
-	
-		case
-			"DeleteCity", "Deletecity", "deleteCity", "deletecity":
-			return true, 2, 3
-		case
-			"Exit", "exit", "EXIT":
-			return true, 0, 1
-		}
-	
-		return false, 0, 0
-}
-*/

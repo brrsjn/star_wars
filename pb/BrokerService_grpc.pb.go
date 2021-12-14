@@ -18,6 +18,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BrokerClient interface {
+	ConnectLeia(ctx context.Context, in *InstructLeia, opts ...grpc.CallOption) (*NumbersRebelds, error)
 	ConnectToServer(ctx context.Context, in *Instruct, opts ...grpc.CallOption) (*Servidor, error)
 }
 
@@ -27,6 +28,15 @@ type brokerClient struct {
 
 func NewBrokerClient(cc grpc.ClientConnInterface) BrokerClient {
 	return &brokerClient{cc}
+}
+
+func (c *brokerClient) ConnectLeia(ctx context.Context, in *InstructLeia, opts ...grpc.CallOption) (*NumbersRebelds, error) {
+	out := new(NumbersRebelds)
+	err := c.cc.Invoke(ctx, "/Broker/ConnectLeia", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *brokerClient) ConnectToServer(ctx context.Context, in *Instruct, opts ...grpc.CallOption) (*Servidor, error) {
@@ -42,6 +52,7 @@ func (c *brokerClient) ConnectToServer(ctx context.Context, in *Instruct, opts .
 // All implementations must embed UnimplementedBrokerServer
 // for forward compatibility
 type BrokerServer interface {
+	ConnectLeia(context.Context, *InstructLeia) (*NumbersRebelds, error)
 	ConnectToServer(context.Context, *Instruct) (*Servidor, error)
 	mustEmbedUnimplementedBrokerServer()
 }
@@ -50,6 +61,9 @@ type BrokerServer interface {
 type UnimplementedBrokerServer struct {
 }
 
+func (UnimplementedBrokerServer) ConnectLeia(context.Context, *InstructLeia) (*NumbersRebelds, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConnectLeia not implemented")
+}
 func (UnimplementedBrokerServer) ConnectToServer(context.Context, *Instruct) (*Servidor, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ConnectToServer not implemented")
 }
@@ -64,6 +78,24 @@ type UnsafeBrokerServer interface {
 
 func RegisterBrokerServer(s grpc.ServiceRegistrar, srv BrokerServer) {
 	s.RegisterService(&Broker_ServiceDesc, srv)
+}
+
+func _Broker_ConnectLeia_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InstructLeia)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BrokerServer).ConnectLeia(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Broker/ConnectLeia",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BrokerServer).ConnectLeia(ctx, req.(*InstructLeia))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Broker_ConnectToServer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -91,6 +123,10 @@ var Broker_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "Broker",
 	HandlerType: (*BrokerServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ConnectLeia",
+			Handler:    _Broker_ConnectLeia_Handler,
+		},
 		{
 			MethodName: "ConnectToServer",
 			Handler:    _Broker_ConnectToServer_Handler,
