@@ -88,6 +88,11 @@ func (s *FulcrumServer) AddCity(ctx context.Context, in *pb.City) (*pb.City, err
 	//Codigo para guardar la ciudad en archivo
 	log.Printf("Se añadirá una nueva ciudad")
 	path := fmt.Sprintf("servidores/servidor_fulkrum_1/planetas/%s.txt", in.Planet)
+	input, err := ioutil.ReadFile(path)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	crearArchivo(path)
 	toWrite := fmt.Sprintf("%s %s %d\n", in.Planet, in.Name, in.Survivors)
 	escribeArchivo(path, toWrite)
@@ -133,7 +138,35 @@ func (s *FulcrumServer) UpdateName(ctx context.Context, in *pb.CityNewName) (*pb
 
 func (s *FulcrumServer) UpdateNumber(ctx context.Context, in *pb.CityNewNumber) (*pb.City, error) {
 	//Codigo cambiar el numero de la ciudad
-	return &pb.City{Name: "", Planet: "", Survivors: 0}, nil
+	path := fmt.Sprintf("servidores/servidor_fulkrum_1/planetas/%s.txt", in.Planet)
+	input, err := ioutil.ReadFile(path)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	log.Println("Entró")
+
+	lines := strings.Split(string(input), "\n")
+	newText := ""
+	for i, line := range lines {
+		valor := strings.Split(line, " ")
+		if len(valor) == 3 {
+			if valor[1] == in.City {
+				fmt.Println(len(valor))
+				fmt.Println(in.Survivors)
+				newText += fmt.Sprintf("%s %s %d", valor[0], valor[1], in.Survivors)
+				lines[i] = newText
+			}
+		}
+
+	}
+	output := strings.Join(lines, "\n")
+	err = ioutil.WriteFile(path, []byte(output), 0644)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	return &pb.City{Name: in.City, Planet: in.Planet, Survivors: 0}, nil
 }
 
 func main() {
