@@ -18,8 +18,10 @@ import (
 )
 
 const (
-	brokeraddress = "localhost:50060"
-	defaultBot    = true
+	brokerPrefix = "localhost"
+	brokerPort   = "50070"
+	ServerPrefix = "localhost"
+	defaultBot   = true
 )
 
 type PlanetsDic struct {
@@ -130,7 +132,7 @@ func IsValidInput(input string) (bool, int, int) {
 }
 
 func TalkToBroker(message string) (*pb.Servidor, error) {
-	conn, err := grpc.Dial(brokeraddress, grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial(brokerPrefix+brokerPort, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	} else {
@@ -150,7 +152,7 @@ func TalkToBroker(message string) (*pb.Servidor, error) {
 
 func TalkToServer(address string, input []string) *pb.City {
 
-	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial(ServerPrefix+address, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	} else {
