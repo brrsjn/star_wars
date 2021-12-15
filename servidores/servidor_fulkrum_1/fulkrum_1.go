@@ -267,6 +267,10 @@ func (s *FulcrumServer) UpdateNumber(ctx context.Context, in *pb.CityNewNumber) 
 	return &pb.City{Name: in.City, Planet: in.Planet, Survivors: 0}, nil
 }
 
+func (s *FulcrumServer) ReadAll(ctx context.Context, req *pb.Read) (*pb.City, error) {
+	return nil, nil
+}
+
 func main() {
 	sv, _ := TalkToBroker()
 	if sv.Error {

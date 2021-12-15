@@ -26,10 +26,12 @@ message City {
     int32 Survivors= 3;
     string Reloj = 4;
     bool Error = 5;
+    string Server = 6;
 }
 
 message Read{
-    string instruction= 1;
+    string nplanet = 1;
+    string ncity = 2;
 }
 
 service Fulcrum{
@@ -38,5 +40,5 @@ service Fulcrum{
     rpc UpdateNumber(CityNewNumber) returns (City){};
     rpc DeleteCity(CityDelete) returns (City){};  
     
-    rpc ReadAll(Read) returns(stream City){};
+    rpc ReadAll(Read) returns(City){};
 }

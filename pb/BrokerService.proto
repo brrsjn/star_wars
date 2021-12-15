@@ -21,7 +21,7 @@ message InstructLeia{
 message NumbersRebelds{
     int32 nrebelds = 1;
     string vreloj = 2;
-    int32 server = 3;
+    string server = 3;
 }
 
 service Broker{

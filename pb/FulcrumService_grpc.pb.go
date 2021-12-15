@@ -22,7 +22,7 @@ type FulcrumClient interface {
 	UpdateName(ctx context.Context, in *CityNewName, opts ...grpc.CallOption) (*City, error)
 	UpdateNumber(ctx context.Context, in *CityNewNumber, opts ...grpc.CallOption) (*City, error)
 	DeleteCity(ctx context.Context, in *CityDelete, opts ...grpc.CallOption) (*City, error)
-	ReadAll(ctx context.Context, in *Read, opts ...grpc.CallOption) (Fulcrum_ReadAllClient, error)
+	ReadAll(ctx context.Context, in *Read, opts ...grpc.CallOption) (*City, error)
 }
 
 type fulcrumClient struct {
@@ -69,36 +69,13 @@ func (c *fulcrumClient) DeleteCity(ctx context.Context, in *CityDelete, opts ...
 	return out, nil
 }
 
-func (c *fulcrumClient) ReadAll(ctx context.Context, in *Read, opts ...grpc.CallOption) (Fulcrum_ReadAllClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Fulcrum_ServiceDesc.Streams[0], "/Fulcrum/ReadAll", opts...)
+func (c *fulcrumClient) ReadAll(ctx context.Context, in *Read, opts ...grpc.CallOption) (*City, error) {
+	out := new(City)
+	err := c.cc.Invoke(ctx, "/Fulcrum/ReadAll", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &fulcrumReadAllClient{stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-type Fulcrum_ReadAllClient interface {
-	Recv() (*City, error)
-	grpc.ClientStream
-}
-
-type fulcrumReadAllClient struct {
-	grpc.ClientStream
-}
-
-func (x *fulcrumReadAllClient) Recv() (*City, error) {
-	m := new(City)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
+	return out, nil
 }
 
 // FulcrumServer is the server API for Fulcrum service.
@@ -109,7 +86,7 @@ type FulcrumServer interface {
 	UpdateName(context.Context, *CityNewName) (*City, error)
 	UpdateNumber(context.Context, *CityNewNumber) (*City, error)
 	DeleteCity(context.Context, *CityDelete) (*City, error)
-	ReadAll(*Read, Fulcrum_ReadAllServer) error
+	ReadAll(context.Context, *Read) (*City, error)
 	mustEmbedUnimplementedFulcrumServer()
 }
 
@@ -129,8 +106,8 @@ func (UnimplementedFulcrumServer) UpdateNumber(context.Context, *CityNewNumber) 
 func (UnimplementedFulcrumServer) DeleteCity(context.Context, *CityDelete) (*City, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteCity not implemented")
 }
-func (UnimplementedFulcrumServer) ReadAll(*Read, Fulcrum_ReadAllServer) error {
-	return status.Errorf(codes.Unimplemented, "method ReadAll not implemented")
+func (UnimplementedFulcrumServer) ReadAll(context.Context, *Read) (*City, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReadAll not implemented")
 }
 func (UnimplementedFulcrumServer) mustEmbedUnimplementedFulcrumServer() {}
 
@@ -217,25 +194,22 @@ func _Fulcrum_DeleteCity_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Fulcrum_ReadAll_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(Read)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
+func _Fulcrum_ReadAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Read)
+	if err := dec(in); err != nil {
+		return nil, err
 	}
-	return srv.(FulcrumServer).ReadAll(m, &fulcrumReadAllServer{stream})
-}
-
-type Fulcrum_ReadAllServer interface {
-	Send(*City) error
-	grpc.ServerStream
-}
-
-type fulcrumReadAllServer struct {
-	grpc.ServerStream
-}
-
-func (x *fulcrumReadAllServer) Send(m *City) error {
-	return x.ServerStream.SendMsg(m)
+	if interceptor == nil {
+		return srv.(FulcrumServer).ReadAll(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Fulcrum/ReadAll",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FulcrumServer).ReadAll(ctx, req.(*Read))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 // Fulcrum_ServiceDesc is the grpc.ServiceDesc for Fulcrum service.
@@ -261,13 +235,11 @@ var Fulcrum_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "DeleteCity",
 			Handler:    _Fulcrum_DeleteCity_Handler,
 		},
-	},
-	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "ReadAll",
-			Handler:       _Fulcrum_ReadAll_Handler,
-			ServerStreams: true,
+			MethodName: "ReadAll",
+			Handler:    _Fulcrum_ReadAll_Handler,
 		},
 	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "pb/FulcrumService.proto",
 }

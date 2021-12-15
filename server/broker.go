@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net"
 	broker "star_wars/pb"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -65,6 +66,21 @@ func (self *BrokerObj) RandomServer(ctx context.Context, req *broker.Instruct) (
 		return req, nil
 	}
 
+}
+
+func (self *BrokerObj) ConnectLeia(ctx context.Context, req *broker.InstructLeia) (*broker.NumbersRebelds, error) {
+	adr := self.servers[rand.Intn(int(self.conectedSV)-1)].Addres
+	conn, err := grpc.Dial(adr, grpc.WithInsecure(), grpc.WithBlock())
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+
+	defer conn.Close()
+	serverObj := broker.NewFulcrumClient(conn)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	res, _ := serverObj.ReadAll(ctx, &broker.Read{Nplanet: req.Nplanet, Ncity: req.Ncity})
+	return &broker.NumbersRebelds{Nrebelds: res.Survivors, Vreloj: res.Reloj, Server: adr}, nil
 }
 
 func (self *BrokerObj) ServerIsOpen(ctx context.Context, req *broker.Servidor) (*broker.Servidor, error) {
