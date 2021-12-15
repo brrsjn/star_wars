@@ -18,12 +18,14 @@ import (
 )
 
 const (
-	brokeraddress = "localhost:50060"
-	defaultBot    = true
+	brokerPrefix = "localhost"
+	brokerPort   = ":50070"
+	ServerPrefix = ""
+	defaultBot   = true
 )
 
 type PlanetsDic struct {
-	Planet []PlanetObj
+	Planet map[string]PlanetObj
 }
 type PlanetObj struct {
 	Name   string
@@ -42,7 +44,7 @@ type Memoria struct {
 func main() {
 	fmt.Println("\n-Ahsoka: Hola, aqui Fulcrum a su servicio...")
 	//var planetas map[string]PlanetObj
-	planetas := map[string]PlanetObj{}
+	//planetas := new(PlanetsDic)
 	registro := []Memoria{}
 
 	buf := bufio.NewScanner(os.Stdin)
@@ -88,13 +90,13 @@ func main() {
 		cityMod := TalkToServer(adSv.Addres, comm)
 
 		memo := new(Memoria)
-		memo.registro = buf.Text() + "; Servidor: " + adSv.Addres + "; Reloj: " + string(cityMod.Reloj)
+		memo.registro = buf.Text() + "; Servidor: " + ServerPrefix + adSv.Addres + "; Reloj: " + string(cityMod.Reloj)
 
 		if !cityMod.Error {
 			//Modifica su registro personal.
 			registro = append(registro, *memo)
 			AddlineOnFiles(memo.registro, false)
-			planetas[cityMod.Planet].Cities[cityMod.Name] = cityMod
+			//planetas.Planet[cityMod.Planet].Cities[cityMod.Name] = cityMod
 		} else {
 			//en caso de falla no guarda su registro.
 			fmt.Println("ha Fallado el registro planetario.")
@@ -130,7 +132,7 @@ func IsValidInput(input string) (bool, int, int) {
 }
 
 func TalkToBroker(message string) (*pb.Servidor, error) {
-	conn, err := grpc.Dial(brokeraddress, grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial(brokerPrefix+brokerPort, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	} else {
@@ -150,7 +152,7 @@ func TalkToBroker(message string) (*pb.Servidor, error) {
 
 func TalkToServer(address string, input []string) *pb.City {
 
-	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial(ServerPrefix+address, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	} else {
