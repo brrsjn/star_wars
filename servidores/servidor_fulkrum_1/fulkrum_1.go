@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	port          = ":50061"
+	port          = ":50071"
 	logFile       = "servidores/servidor_fulkrum_1/planetas/log.txt"
 	brokeraddress = "localhost:50060"
 )

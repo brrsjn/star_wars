@@ -14,11 +14,11 @@ import (
 )
 
 const (
-	port = ":50060"
+	port = ":50070"
 
-	address1 = "localhost:50061"
-	address2 = "localhost:50062"
-	address3 = "localhost:50063"
+	address1 = "localhost:50071"
+	address2 = "localhost:50072"
+	address3 = "localhost:50073"
 )
 
 type BrokerObj struct {

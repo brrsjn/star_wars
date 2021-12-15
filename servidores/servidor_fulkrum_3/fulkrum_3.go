@@ -8,6 +8,7 @@ import (
 	"net"
 	"os"
 	"star_wars/pb"
+	"strconv"
 	"strings"
 	"time"
 
@@ -16,7 +17,7 @@ import (
 )
 
 const (
-	port          = ":50063"
+	port          = ":50073"
 	logFile       = "servidores/servidor_fulkrum_3/planetas/log"
 	brokeraddress = "localhost:50060"
 )
@@ -30,6 +31,7 @@ type FulcrumServer struct {
 type Planeta struct {
 	nombre   string
 	ciudades []string
+	dciudad  map[string]*pb.City
 }
 
 type Reloj struct {
@@ -265,6 +267,27 @@ func (s *FulcrumServer) UpdateNumber(ctx context.Context, in *pb.CityNewNumber) 
 	s.relojInterno.fulkrum_3 = s.relojInterno.fulkrum_3 + 1
 
 	return &pb.City{Name: in.City, Planet: in.Planet, Survivors: 0}, nil
+}
+
+func (s *FulcrumServer) ReadAll(ctx context.Context, req *pb.Read) (*pb.City, error) {
+	path := fmt.Sprintf("servidores/servidor_fulkrum_1/planetas/%s.txt", req.Nplanet)
+	input, err := ioutil.ReadFile(path)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	log.Println("Entró")
+
+	lines := strings.Split(string(input), "\n")
+	for _, line := range lines {
+		valor := strings.Split(line, " ")
+		if valor[1] == req.Ncity {
+			temp, _ := strconv.Atoi(valor[2])
+			rebeldes := int32(temp)
+			return &pb.City{Survivors: rebeldes, Name: req.Ncity, Planet: req.Nplanet, Reloj: s.relojInterno.fulkrum_1, Error: false}, nil
+		}
+	}
+	return &pb.City{Error: true}, nil
 }
 
 func main() {
