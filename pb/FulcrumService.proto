@@ -24,7 +24,7 @@ message City {
     string Name = 1;
     string Planet = 2;
     int32 Survivors= 3;
-    string Reloj = 4;
+    int32 Reloj = 4;
     bool Error = 5;
     string Server = 6;
 }

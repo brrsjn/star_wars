@@ -88,7 +88,7 @@ func main() {
 		cityMod := TalkToServer(adSv.Addres, comm)
 
 		memo := new(Memoria)
-		memo.registro = buf.Text() + "; Servidor: " + adSv.Addres + "; Reloj: " + cityMod.Reloj
+		memo.registro = buf.Text() + "; Servidor: " + adSv.Addres + "; Reloj: " + string(cityMod.Reloj)
 
 		if !cityMod.Error {
 			//Modifica su registro personal.
