@@ -19,13 +19,13 @@ import (
 
 const (
 	brokerPrefix = "localhost"
-	brokerPort   = "50070"
+	brokerPort   = ":50070"
 	ServerPrefix = "localhost"
 	defaultBot   = true
 )
 
 type PlanetsDic struct {
-	Planet []PlanetObj
+	Planet map[string]PlanetObj
 }
 type PlanetObj struct {
 	Name   string
@@ -44,7 +44,7 @@ type Memoria struct {
 func main() {
 	fmt.Println("\n-Ahsoka: Hola, aqui Fulcrum a su servicio...")
 	//var planetas map[string]PlanetObj
-	planetas := map[string]PlanetObj{}
+	//planetas := new(PlanetsDic)
 	registro := []Memoria{}
 
 	buf := bufio.NewScanner(os.Stdin)
@@ -90,13 +90,13 @@ func main() {
 		cityMod := TalkToServer(adSv.Addres, comm)
 
 		memo := new(Memoria)
-		memo.registro = buf.Text() + "; Servidor: " + adSv.Addres + "; Reloj: " + string(cityMod.Reloj)
+		memo.registro = buf.Text() + "; Servidor: " + ServerPrefix + adSv.Addres + "; Reloj: " + string(cityMod.Reloj)
 
 		if !cityMod.Error {
 			//Modifica su registro personal.
 			registro = append(registro, *memo)
 			AddlineOnFiles(memo.registro, false)
-			planetas[cityMod.Planet].Cities[cityMod.Name] = cityMod
+			//planetas.Planet[cityMod.Planet].Cities[cityMod.Name] = cityMod
 		} else {
 			//en caso de falla no guarda su registro.
 			fmt.Println("ha Fallado el registro planetario.")

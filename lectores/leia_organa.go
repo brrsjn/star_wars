@@ -18,8 +18,9 @@ import (
 )
 
 const (
-	brokeraddress = "localhost:50060"
-	defaultBot    = true
+	brokerPrefix = "localhost"
+	brokerPort   = ":50070"
+	defaultBot   = true
 )
 
 func main() {
@@ -52,7 +53,7 @@ func main() {
 
 //Conexion con broker, lectura.
 func ConnectToBroker(planet string, city string) (int32, int32, string) {
-	conn, err := grpc.Dial(brokeraddress, grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial(brokerPrefix+brokerPort, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	} else {

@@ -8,6 +8,7 @@ import (
 	"net"
 	"os"
 	"star_wars/pb"
+	"strconv"
 	"strings"
 	"time"
 
@@ -16,9 +17,10 @@ import (
 )
 
 const (
-	port          = ":50063"
-	logFile       = "servidores/servidor_fulkrum_3/planetas/log"
-	brokeraddress = "localhost:50060"
+	port         = ":50072"
+	logFile      = "servidores/servidor_fulkrum_3/planetas/log"
+	brokerPrefix = "localhost"
+	brokerPort   = ":50070"
 )
 
 type FulcrumServer struct {
@@ -101,7 +103,7 @@ func existeError(err error) bool {
 }
 
 func TalkToBroker() (*pb.Servidor, error) {
-	conn, err := grpc.Dial(brokeraddress, grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial(brokerPrefix+brokerPort, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -156,7 +158,7 @@ func (s *FulcrumServer) AddCity(ctx context.Context, in *pb.City) (*pb.City, err
 	s.relojInterno.fulkrum_2 = s.relojInterno.fulkrum_2 + 1
 	lineLog := fmt.Sprintf("AddCity %s %s %d", in.Planet, in.Name, in.Survivors)
 	escribeArchivo(logFile, lineLog)
-	return in, nil
+	return &pb.City{Reloj: s.relojInterno.fulkrum_2, Planet: in.Planet, Name: in.Name, Survivors: in.Survivors, Server: port, Error: false}, nil
 
 }
 
@@ -193,7 +195,7 @@ func (s *FulcrumServer) DeleteCity(ctx context.Context, in *pb.CityDelete) (*pb.
 	escribeArchivo(logFile, lineLog)
 	s.relojInterno.fulkrum_2 = s.relojInterno.fulkrum_2 + 1
 
-	return &pb.City{Name: cityName}, nil
+	return &pb.City{Reloj: s.relojInterno.fulkrum_2, Planet: in.Planet, Name: cityName, Survivors: in.Survivors, Server: port, Error: false}, nil
 }
 
 func (s *FulcrumServer) UpdateName(ctx context.Context, in *pb.CityNewName) (*pb.City, error) {
@@ -205,7 +207,7 @@ func (s *FulcrumServer) UpdateName(ctx context.Context, in *pb.CityNewName) (*pb
 	}
 
 	log.Println("Entró")
-
+	var surv string
 	lines := strings.Split(string(input), "\n")
 	newText := ""
 	for i, line := range lines {
@@ -215,6 +217,7 @@ func (s *FulcrumServer) UpdateName(ctx context.Context, in *pb.CityNewName) (*pb
 				fmt.Println(len(valor))
 				newText += fmt.Sprintf("%s %s %s", valor[0], in.NewName, valor[2])
 				lines[i] = newText
+				surv = valor[2]
 			}
 		}
 
@@ -227,8 +230,8 @@ func (s *FulcrumServer) UpdateName(ctx context.Context, in *pb.CityNewName) (*pb
 	lineLog := fmt.Sprintf("UpdateName %s %s %s", in.Planet, in.City, in.NewName)
 	escribeArchivo(logFile, lineLog)
 	s.relojInterno.fulkrum_2 = s.relojInterno.fulkrum_2 + 1
-
-	return &pb.City{Name: in.NewName, Planet: in.Planet, Survivors: 0}, nil
+	algo, _ := strconv.Atoi(surv)
+	return &pb.City{Reloj: s.relojInterno.fulkrum_2, Planet: in.Planet, Name: in.NewName, Survivors: int32(algo), Server: port, Error: false}, nil
 }
 
 func (s *FulcrumServer) UpdateNumber(ctx context.Context, in *pb.CityNewNumber) (*pb.City, error) {
@@ -264,7 +267,7 @@ func (s *FulcrumServer) UpdateNumber(ctx context.Context, in *pb.CityNewNumber) 
 	escribeArchivo(logFile, lineLog)
 	s.relojInterno.fulkrum_2 = s.relojInterno.fulkrum_2 + 1
 
-	return &pb.City{Name: in.City, Planet: in.Planet, Survivors: 0}, nil
+	return &pb.City{Reloj: s.relojInterno.fulkrum_2, Planet: in.Planet, Name: in.City, Survivors: in.Survivors, Server: port, Error: false}, nil
 }
 
 func main() {

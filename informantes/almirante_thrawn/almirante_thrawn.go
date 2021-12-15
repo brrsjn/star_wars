@@ -19,7 +19,7 @@ import (
 
 const (
 	brokerPrefix = "localhost"
-	brokerPort   = "50070"
+	brokerPort   = ":50070"
 	ServerPrefix = "localhost"
 	defaultBot   = true
 )
